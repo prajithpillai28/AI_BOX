@@ -239,6 +239,8 @@ class ML:
     def mlr(self,X_train,Y_train,X_test,Y_test):
         #Multiple Linear Regressions
         #fitting the multiple linear regressions
+        DP2.data_visualizelr(X_train[:,0],Y_train[:,1])
+
         regressor = LinearRegression()
         regressor.fit(X_train,Y_train)
 
@@ -249,19 +251,16 @@ class ML:
         #Building optimal model using Backward Elimination
         import statsmodels.api as sm
         X_train1 = np.append(arr=np.ones((2684,1)).astype(int),values = X_train,axis = 1)
-        X_opt = X_train1[:,[0,1,2,3,4,5]]
+        X_opt = X_train1[:,[0,1,2,3,4]]
         regressor_OLS = sm.OLS(endog=Y_train,exog=X_opt).fit()
         regressor_OLS.summary()
-        X_opt = X_train1[:,[0,1,3,4,5]]
+        X_opt = X_train1[:,[0,1,3,4]]
         regressor_OLS = sm.OLS(endog=Y_train,exog=X_opt).fit()
         regressor_OLS.summary()
-        X_opt = X_train1[:,[0,3,4,5]]
+        X_opt = X_train1[:,[0,3,4]]
         regressor_OLS = sm.OLS(endog=Y_train,exog=X_opt).fit()
         regressor_OLS.summary()
-        X_opt = X_train1[:,[0,3,5]]
-        regressor_OLS = sm.OLS(endog=Y_train,exog=X_opt).fit()
-        regressor_OLS.summary()
-        X_opt = X_train1[:,[0,3]]
+        X_opt = X_train1[:,[0,4]]
         regressor_OLS = sm.OLS(endog=Y_train,exog=X_opt).fit()
         regressor_OLS.summary()
         
