@@ -232,7 +232,7 @@ class ML:
         Y_pred = regressor.predict(X_train)
         Y_pred1= regressor.predict(X_test)
         DP1.postprocessinglr(Y_train,Y_pred,Y_test,Y_pred1)
-        DP1.joint_plot_regression(X_train, Y_train)
+        #DP1.joint_plot_regression(X_train, Y_train)
         
         
     
