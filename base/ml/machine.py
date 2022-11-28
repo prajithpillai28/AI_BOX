@@ -232,37 +232,43 @@ class ML:
         Y_pred = regressor.predict(X_train)
         Y_pred1= regressor.predict(X_test)
         DP1.postprocessinglr(Y_train,Y_pred,Y_test,Y_pred1)
-        #DP1.joint_plot_regression(X_train, Y_train)
+        DP1.joint_plot_regression(X_train, Y_train)
         
         
     
-    def mlr(self,X_train,Y_train,X_test,Y_test):
+    def mlr(X_train,Y_train,X_test,Y_test,r):
         #Multiple Linear Regressions
         #fitting the multiple linear regressions
-        DP2.data_visualizelr(X_train[:,0],Y_train[:,1])
-
+        c1= int(input("Please enter column to be considered for prediction: "))
         regressor = LinearRegression()
         regressor.fit(X_train,Y_train)
 
         #predicting the values
         y_pred = regressor.predict(X_test)
         y_pred1 = regressor.predict(X_train)
-
+        variable=[]
         #Building optimal model using Backward Elimination
         import statsmodels.api as sm
-        X_train1 = np.append(arr=np.ones((2684,1)).astype(int),values = X_train,axis = 1)
-        X_opt = X_train1[:,[0,1,2,3,4]]
-        regressor_OLS = sm.OLS(endog=Y_train,exog=X_opt).fit()
-        regressor_OLS.summary()
-        X_opt = X_train1[:,[0,1,3,4]]
-        regressor_OLS = sm.OLS(endog=Y_train,exog=X_opt).fit()
-        regressor_OLS.summary()
-        X_opt = X_train1[:,[0,3,4]]
-        regressor_OLS = sm.OLS(endog=Y_train,exog=X_opt).fit()
-        regressor_OLS.summary()
-        X_opt = X_train1[:,[0,4]]
-        regressor_OLS = sm.OLS(endog=Y_train,exog=X_opt).fit()
-        regressor_OLS.summary()
+        for j in range(r):
+            variable.append(j)
+        X_train1 = np.append(arr=np.ones((len(X_train),1)).astype(int),values = X_train,axis = 1)
+        X_opt = X_train1[:,variable]
+        regressor_OLS = sm.OLS(endog=Y_train[:,c1],exog=X_opt).fit()
+        print(regressor_OLS.summary())   
+        p=1
+        for i in range(r):
+            if p!=r:
+                pref1  = int(input("Serial number of row to be eliminated: "))
+                variable.pop(pref1)
+                X_opt = X_train1[:,variable]
+                regressor_OLS = sm.OLS(endog=Y_train[:,c1],exog=X_opt).fit()
+                regressor_OLS.summary()
+                print(regressor_OLS.summary()) 
+                p=p+1
+            
+            else:
+                print("The backward elimination complete")
+
         
 
         #Visualizing the Training Set Results
