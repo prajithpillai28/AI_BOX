@@ -122,7 +122,11 @@ class Datapreprocessing:
 
         return X_train,X_test,Y_train,Y_test
 
-    
+    def train_test_splitmlr(X,Y):
+        X_train,X_test1,Y_train,Y_test1=train_test_split(X,Y,test_size=0.10,random_state=0)
+        X_val,X_test,Y_val,Y_test = train_test_split(X_test1,Y_test1,test_size=0.50,random_state=0)
+
+        return X_train,X_test,Y_train,Y_test   
     def lr(X_train,Y_train,X_test,Y_test):
         regressor = LinearRegression()
         regressor.fit(X_train,Y_train)
