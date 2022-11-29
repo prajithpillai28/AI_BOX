@@ -244,8 +244,8 @@ class ML:
         regressor.fit(X_train,Y_train)
 
         #predicting the values
-        y_pred = regressor.predict(X_test)
-        y_pred1 = regressor.predict(X_train)
+        Y_pred1 = regressor.predict(X_test)
+        Y_pred = regressor.predict(X_train)
         variable=[]
         #Building optimal model using Backward Elimination
         import statsmodels.api as sm
@@ -269,144 +269,45 @@ class ML:
             else:
                 print("The backward elimination complete")
 
-        
+        DP1.postprocessingmlr(Y_train,Y_pred,Y_test,Y_pred1)
 
-        #Visualizing the Training Set Results
-        plt.scatter(y_pred1,Y_train,color ='red')
-        #plt.plot(X_train[:,0],regressor.predict(X_train),color='blue')
-        plt.title('SALARY VS EXPERIENCE(Traing Set)')                # change title for training set
-        plt.xlabel('Years of Experience')
-        plt.xlabel('Salary')
-        plt.show()
-        plt.scatter(y_pred,Y_test,color ='green')
-        #plt.plot(X_test[:,0],y_pred,color='yellow')    # change title for test set
-        plt.title('SALARY VS EXPERIENCE(Test Set)')
-        plt.xlabel('Years of Experience')
-        plt.xlabel('Salary')
-        plt.show()
-        
-    def plr(self,X_train,Y_train,X_test,Y_test):
+    def plr(X_train,Y_train,X_test,Y_test):
+
+        deg= int(input("Please enter degree for polynomial features: "))
+
         lin_reg = LinearRegression()
         lin_reg.fit(X_train,Y_train)
-        poly_reg = PolynomialFeatures(degree=2)
+        poly_reg = PolynomialFeatures(degree=deg)
         X_poly = poly_reg.fit_transform(X_train)
+        X_poly1 = poly_reg.fit_transform(X_test)
         lin_reg2 = LinearRegression()
         lin_reg2.fit(X_poly,Y_train)
-        y_pred=lin_reg.predict(X_train)
-        y_pred1=lin_reg2.predict(X_poly)
-        print(y_pred)
-        #Visualizing the Linear Regression Results
-        plt.scatter(X_train,Y_train,color='red')
-        plt.plot(X_train,y_pred,color='blue')
-        plt.title('Linear Regression Prediction(Truth or Bluff)')
-        plt.xlabel('Position level')
-        plt.ylabel('Salary')
+        Y_pred=lin_reg.predict(X_train)
+        Y_pred1=lin_reg2.predict(X_poly)
+        Y_pred2=lin_reg2.predict(X_poly1)
+        DP1.postprocessingplr(X_train,X_test,Y_train,Y_pred1,Y_test,Y_pred2,lin_reg2,poly_reg)
+        DP1.joint_plot_regression(X_train, Y_train)
 
-        #Visualizing the Polynomial Regression Results
-        X_grid = np.arange(min(X_train),max(X_train),0.1)
-        X_grid = X_grid.reshape(len(X_grid),1)
-        plt.scatter(X_train,Y_train,color='red')
-        plt.plot(X_grid,lin_reg2.predict(poly_reg.fit_transform(X_grid)),color='blue')
-        plt.title('Polynomial Regression Prediction(Truth or Bluff)')
-        plt.xlabel('Position level')
-        plt.ylabel('Salary')
-
-        #Visualizing the Polynomial Regression Results
-        plt.scatter(X_test,Y_test,color='green')
-        plt.plot(X_test,lin_reg2.predict(poly_reg.fit_transform(X_test)),color='yellow')
-        plt.title('Polynomial Regression Prediction(Truth or Bluff)')
-        plt.xlabel('Position level')
-        plt.ylabel('Salary')
-
-        #Predicting a new result using Linear Regression
-        #lin_pred = lin_reg.predict(6.5)
-        #Predicting a new result using Polynomial Regression
-        #poly_pred = lin_reg2.predict(poly_reg.fit_transform(6.5))
-    def Grid_search (self, mod,parameters, X_train,Y_train):
-        cv=GridSearchCV(mod, parameters,cv=5)  
-        cv.fit(X_train,Y_train.values.ravel())     
-        self.print_results(cv) 
-        return cv                                         # define dictionary of parameters
+        # define dictionary of parameters
 
 
-    def logr(self,X_train,Y_train,X_test,Y_test):
-        parameters = {'C':[0.001, 0.01, 0.1, 1, 10, 100, 1000]}                       
+    def logr(X_train,Y_train,X_test,Y_test):
+                            
 
         classifier = LogisticRegression(random_state = 0)                          # name of hyperparameter should be same as logistic Regression
         classifier.fit(X_train,Y_train)
 
         #Predicting the Test Set Results
-        y_pred = classifier.predict(X_test)
-        cm = confusion_matrix(Y_test,y_pred)
-        
-        print("confusion matrix :")
-        print(cm)
+        Y_pred = classifier.predict(X_train)
+        Y_pred1 = classifier.predict(X_test)
+        DP1.confusion(Y_train,Y_pred,Y_test,Y_pred1)
         
 
-        #Visualizing the Training Set Results
-        plt.scatter(X_train ['Age'],Y_train,color ='red')
-        plt.scatter(X_train['Age'],classifier.predict(X_train),color='blue')
-        plt.title('PREDICTORS VS CLASS(2)')                # change title for training set
-        plt.xlabel('X')
-        plt.xlabel('Y')
-        plt.show()
-        plt.scatter(X_test['Age'],Y_test,color ='red')
-        plt.scatter(X_train['Age'],classifier.predict(X_train),color='blue')    # change title for test set
-        plt.title('PREDICTORS VS CLASS(Test Set)')
-        plt.xlabel('X')
-        plt.xlabel('Y')
-        plt.show() 
+        DP1.confusion(Y_train,Y_pred,Y_test,Y_pred1)
+        DP1.visualizelogr(classifier,X_train,Y_train,X_test,Y_test)
 
-        cv1=self.Grid_search(classifier, X_train, Y_train)
-        print(cv1.best_estimator_)
-        joblib.dump(cv1.best_estimator_,'/content/sample_data/LR_model.pkl')
 
-        reconstructed_model = joblib.load('/content/sample_data/LR_model.pkl')
-        ypred_train=reconstructed_model.predict(X_train)
-        ypred_train=sc.inverse_transform(ypred_train)
-        ypred_test = reconstructed_model.predict(X_test)
-        ypred_test=sc.inverse_transform(ypred_test)
-        y_train = sc.inverse_transform(Y_train)
-        y_test = sc.inverse_transform(Y_test)
-
-        print(ypred_test)
-
-        time.sleep(25)
-        X_set, y_set = X_train, Y_train
-        X1, X2 = np.meshgrid(np.arange(start = X_set['Age'].min() - 1, stop = X_set['Age'].max() + 1, step = 0.001),
-                     np.arange(start = X_set['Age'].min() - 1, stop = X_set['Age'].max() + 1, step = 0.001))
-        plt.contourf(X1, X2, classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
-             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
-        plt.xlim(X1.min(), X1.max())
-        plt.ylim(X2.min(), X2.max())
-        for i, j in enumerate(np.unique(y_set)):
-            plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
-                c = ListedColormap(('red', 'green'))(i), label = j)
-        plt.title('Logistic Regression (Training set)')
-        plt.xlabel('Age')
-        plt.ylabel('Estimated Salary')
-        plt.legend()
-        plt.show()
-
-        
-
-        # Visualising the Test set results
-        
-        X_set, y_set = X_test, Y_test
-        X1, X2 = np.meshgrid(np.arange(start = X_set['Age'].min() - 1, stop = X_set['Age'].max() + 1, step = 0.01),
-                     np.arange(start = X_set['Age'].min() - 1, stop = X_set['Age'].max() + 1, step = 0.01))
-        plt.contourf(X1, X2, classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
-             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
-        plt.xlim(X1.min(), X1.max())
-        plt.ylim(X2.min(), X2.max())
-        for i, j in enumerate(np.unique(y_set)):
-            plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
-                c = ListedColormap(('red', 'green'))(i), label = j)
-        plt.title('Logistic Regression (Test set)')
-        plt.xlabel('Age')
-        plt.ylabel('Estimated Salary')
-        plt.legend()
-        plt.show()
+ 
 
     def SVM (self, X_train,Y_train,X_test,Y_test):
         parameters = {'C':[ 0.1, 1, 10],
